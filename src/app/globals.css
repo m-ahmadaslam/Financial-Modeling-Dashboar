@@ -1,0 +1,281 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Hide scrollbar for webkit browsers */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Custom scrollbar for better UX */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Project Form Optimization */
+.project-form-container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.project-form-step {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Responsive grid optimization */
+@media (max-width: 1024px) {
+  .project-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Enhanced sticky navigation */
+.sticky-tracker {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 30 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: transform !important;
+}
+
+.sticky-tracker:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Force sticky behavior */
+.sticky-tracker {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 30 !important;
+}
+
+/* Ensure parent container allows sticky positioning */
+.project-form-container {
+  overflow: visible !important;
+  position: relative !important;
+}
+
+/* Additional sticky support */
+@supports (position: sticky) {
+  .sticky-tracker {
+    position: sticky !important;
+    top: 0 !important;
+  }
+}
+
+@supports not (position: sticky) {
+  .sticky-tracker {
+    position: fixed !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 2rem) !important;
+    max-width: 1280px !important;
+  }
+}
+
+/* Smooth scrolling for step navigation */
+.step-navigation {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Enhanced button hover effects */
+.step-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Active step enhancement */
+.active-step {
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+}
+
+/* Gradient fade indicators */
+.gradient-fade-left {
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.95) 0%, transparent 100%);
+}
+
+.gradient-fade-right {
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.95) 0%, transparent 100%);
+}
+
+/* Search functionality animations */
+.search-slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+}
+
+.search-suggestions-enter {
+  animation: suggestionsSlide 0.2s ease-out forwards;
+}
+
+@keyframes suggestionsSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Search input focus effects */
+.search-input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Search button pulse effect */
+.search-button-active {
+  animation: searchPulse 2s infinite;
+}
+
+@keyframes searchPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+/* Validation error states */
+.validation-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.validation-error:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Search suggestions accessibility */
+.search-suggestion-blocked {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.search-suggestion-blocked:hover {
+  background-color: #fef2f2 !important;
+}
+
+/* Fix search suggestions positioning */
+.search-suggestions-enter {
+  position: absolute !important;
+  top: calc(100% + 0.25rem) !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 999999 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(209, 213, 219, 1) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  max-height: 12rem !important;
+  overflow-y: auto !important;
+}
+
+/* Ensure search input container has proper positioning */
+.search-slide-down {
+  position: relative !important;
+  z-index: 1000 !important;
+}
+
+/* Notification panel highest z-index */
+.notification-panel {
+  position: fixed !important;
+  z-index: 99999 !important;
+  isolation: isolate !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+}
+
+/* Ensure notification panel appears above everything including scrollbars */
+.notification-panel * {
+  position: relative !important;
+  z-index: inherit !important;
+}
+
+/* Force notification panel above browser UI */
+@supports (z-index: 99999) {
+  .notification-panel {
+    z-index: 99999 !important;
+  }
+}
+
+/* Additional browser-specific fixes */
+.notification-panel {
+  -webkit-transform: translateZ(0) !important;
+  -moz-transform: translateZ(0) !important;
+  -ms-transform: translateZ(0) !important;
+  -o-transform: translateZ(0) !important;
+}
