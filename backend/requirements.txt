@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+openpyxl
+xlsxwriter
+pydantic
+python-multipart
+aiofiles
+pandas
+python-dateutil

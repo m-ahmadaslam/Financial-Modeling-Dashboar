@@ -220,7 +220,7 @@ export default function TimelinesStep({ formData, errors, handleChange, isViewMo
               {isExpanded && (
                 <div className="px-6 pb-6 border-t border-gray-100">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
-                    {section.fields.map(renderField)}
+                    {(section.fields || []).map(renderField)}
                   </div>
                 </div>
               )}

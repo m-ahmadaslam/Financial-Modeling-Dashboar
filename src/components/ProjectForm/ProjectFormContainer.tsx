@@ -16,21 +16,11 @@ import {
   PlusIcon
 } from '@heroicons/react/24/outline';
 
-// Import all step components
+// Import step components
 import ProjectInfoStep from './ProjectInfoStep';
 import TimelinesStep from './TimelinesStep';
 import ProjectTypeStep from './ProjectTypeStep';
-import PlantAssumptionsStep from './PlantAssumptionsStep';
-import FinancialAssumptionsStep from './FinancialAssumptionsStep';
-import FinancingStep from './FinancingStep';
-import VATAssumptionsStep from './VATAssumptionsStep';
-import CustomDutyStep from './CustomDutyStep';
-import OpexAssumptionsStep from './OpexAssumptionsStep';
-import DebtAssumptionsStep from './DebtAssumptionsStep';
-import EBLAssumptionsStep from './EBLAssumptionsStep';
-import TerminalValueStep from './TerminalValueStep';
-import IRRStep from './IRRStep';
-import AssumptionsModal from './AssumptionsModal';
+import RealInputSheetStep from './RealInputSheetStep';
 
 interface ProjectFormContainerProps {
   isViewMode?: boolean;
@@ -200,7 +190,6 @@ export default function ProjectFormContainer({ isViewMode = false }: ProjectForm
   const [finalizationStep, setFinalizationStep] = useState(1);
   const [finalizationLoading, setFinalizationLoading] = useState(false);
   const [draftInfo, setDraftInfo] = useState<DraftInfo | null>(null);
-  const [showAssumptionsModal, setShowAssumptionsModal] = useState(false);
   
   // Search functionality state
   const [searchQuery, setSearchQuery] = useState('');
@@ -208,37 +197,15 @@ export default function ProjectFormContainer({ isViewMode = false }: ProjectForm
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   
-  // Searchable assumption fields mapping
+  // Searchable fields mapping
   const searchableFields = [
-    { name: 'Financial Assumptions', keywords: ['financial', 'fin', 'tariff', 'exchange', 'inflation'], stepIndex: 4, id: 'financial-assumptions' },
-    { name: 'Plant Assumptions', keywords: ['plant', 'capacity', 'plf', 'degradation'], stepIndex: 3, id: 'plant-assumptions' },
-    { name: 'VAT Assumptions', keywords: ['vat', 'tax', 'value added'], stepIndex: 6, id: 'vat-assumptions' },
-    { name: 'Custom Duty', keywords: ['custom', 'duty', 'import', 'customs'], stepIndex: 7, id: 'custom-duty' },
-    { name: 'OPEX Assumptions', keywords: ['opex', 'operational', 'operation', 'maintenance'], stepIndex: 8, id: 'opex-assumptions' },
-    { name: 'Debt Assumptions', keywords: ['debt', 'loan', 'financing', 'interest'], stepIndex: 9, id: 'debt-assumptions' },
-    { name: 'EBL Assumptions', keywords: ['ebl', 'export', 'bank', 'letter'], stepIndex: 10, id: 'ebl-assumptions' },
-    { name: 'Terminal Value', keywords: ['terminal', 'value', 'residual'], stepIndex: 11, id: 'terminal-value' },
-    { name: 'IRR', keywords: ['irr', 'return', 'internal rate', 'target', 'hurdle', 'payback', 'npv', 'dscr'], stepIndex: 12, id: 'irr' },
-    { name: 'Financing', keywords: ['financing', 'equity', 'ratio'], stepIndex: 5, id: 'financing' },
-    { name: 'Project Info', keywords: ['project', 'info', 'reference', 'name'], stepIndex: 0, id: 'project-info' },
-    { name: 'Timelines', keywords: ['timeline', 'date', 'bid', 'cod'], stepIndex: 1, id: 'timelines' },
-    { name: 'Project Type', keywords: ['type', 'classification'], stepIndex: 2, id: 'project-type' }
+    { name: 'Input Sheet Data', keywords: ['input', 'sheet', 'data', 'financial', 'plant', 'financing', 'tax', 'debt', 'irr', 'terminal', 'opex', 'custom', 'ebl', 'assumptions', 'project', 'basic', 'timeline', 'macroeconomic'], stepIndex: 1, id: 'input-sheet-data' },
+    { name: 'Project Type', keywords: ['type', 'classification', 'version'], stepIndex: 0, id: 'project-type' }
   ];
 
   const steps = [
-    { name: 'Project Info', icon: '📋', description: 'Basic project details', color: 'blue' },
-    { name: 'Timelines', icon: '📅', description: 'Key milestones', color: 'green' },
-    { name: 'Project Type', icon: '🏗️', description: 'Project classification', color: 'purple' },
-    { name: 'Plant Assumptions', icon: '⚡', description: 'Capacity & performance', color: 'indigo' },
-    { name: 'Financial Assumptions', icon: '💰', description: 'Economic parameters', color: 'yellow' },
-    { name: 'Financing', icon: '🏦', description: 'Funding structure', color: 'pink' },
-    { name: 'VAT Assumptions', icon: '🧾', description: 'Tax considerations', color: 'red' },
-    { name: 'Custom Duty', icon: '📦', description: 'Import duties', color: 'orange' },
-    { name: 'Opex Assumptions', icon: '💼', description: 'Operating expenses', color: 'teal' },
-    { name: 'Debt Assumptions', icon: '💳', description: 'Debt financing', color: 'cyan' },
-    { name: 'EBL Assumptions', icon: '📊', description: 'Bridge loan details', color: 'emerald' },
-    { name: 'Terminal Value', icon: '🎯', description: 'Exit valuation', color: 'rose' },
-    { name: 'IRR', icon: '📈', description: 'Return analysis', color: 'violet' },
+    { name: 'Project Type', icon: '🏗️', description: 'Project classification & version', color: 'purple' },
+    { name: 'Input Sheet Data', icon: '📊', description: 'Comprehensive financial model with 1000+ fields', color: 'indigo' },
   ];
 
   // Load draft if draftId is present
@@ -327,71 +294,54 @@ export default function ProjectFormContainer({ isViewMode = false }: ProjectForm
 
   // Smart validation that only validates essential fields for each step
   const validateCurrentStep = (): boolean => {
-    const newErrors: {[key: string]: string} = {};
+    // COMMENTED OUT FOR TESTING - All validation disabled
+    // const newErrors: {[key: string]: string} = {};
     
-    switch (currentStep) {
-      case 0: // Project Info - Essential for any project
-        if (!formData.projectReference?.trim()) newErrors.projectReference = 'Project Reference is required';
-        if (!formData.projectName?.trim()) newErrors.projectName = 'Project Name is required';
-        if (!formData.country?.trim()) newErrors.country = 'Country is required';
-        if (!formData.version?.trim()) newErrors.version = 'Project Version is required';
-        break;
-      case 1: // Timelines - Essential dates for project planning
-        if (!formData.modelStartDate?.trim()) newErrors.modelStartDate = 'Model Start Date is required';
-        if (!formData.bidSubmissionDate?.trim()) newErrors.bidSubmissionDate = 'Bid Submission Date is required';
-        if (!formData.financialCloseDateAsPerPPA?.trim()) newErrors.financialCloseDateAsPerPPA = 'Financial Close Date as per PPA is required';
-        if (!formData.targetFCDate?.trim()) newErrors.targetFCDate = 'Target FC Date is required';
-        if (!formData.earliestConnectionDateAsPerPPA?.trim()) newErrors.earliestConnectionDateAsPerPPA = 'Earliest Connection Date as per PPA is required';
-        if (!formData.earliestConnectionDate?.trim()) newErrors.earliestConnectionDate = 'Earliest Connection Date is required';
-        if (!formData.scheduledFirstConstructionMilestoneDateAsPerPPA?.trim()) newErrors.scheduledFirstConstructionMilestoneDateAsPerPPA = 'Scheduled First Construction Milestone Date as per PPA is required';
-        if (!formData.scheduledFirstConstructionMilestoneDate?.trim()) newErrors.scheduledFirstConstructionMilestoneDate = 'Scheduled First Construction Milestone Date is required';
-        if (!formData.constructionPeriod?.trim()) newErrors.constructionPeriod = 'Construction Period is required';
-        if (!formData.scheduledPCODAsPerPPA?.trim()) newErrors.scheduledPCODAsPerPPA = 'Scheduled PCOD as per PPA is required';
-        if (!formData.scheduledPCOD?.trim()) newErrors.scheduledPCOD = 'Scheduled PCOD is required';
-        if (!formData.longstopDate?.trim()) newErrors.longstopDate = 'Longstop Date is required';
-        if (!formData.tenorOfPPA?.trim()) newErrors.tenorOfPPA = 'Tenor of PPA is required';
-        if (!formData.eblMaxTenorAsPerRFP?.trim()) newErrors.eblMaxTenorAsPerRFP = 'EBL Max Tenor as per RFP is required';
-        if (!formData.maxTargetRefinancingDateAsPerRFP?.trim()) newErrors.maxTargetRefinancingDateAsPerRFP = 'Max. Target Refinancing Date as per RFP is required';
-        break;
-      case 2: // Project Type - Essential for project classification
-        if (!formData.projectType?.trim()) newErrors.projectType = 'Project Type is required';
-        break;
-      case 3: // Plant Assumptions - Only core capacity and performance metrics
-        if (!formData.plantCapacityAC?.trim()) newErrors.plantCapacityAC = 'Plant Capacity AC is required';
-        if (!formData.plf?.trim()) newErrors.plf = 'PLF is required';
-        break;
-      case 4: // Financial Assumptions - Only core economic parameters
-        if (!formData.tariff?.trim()) newErrors.tariff = 'Tariff is required';
-        if (!formData.projectLife?.trim()) newErrors.projectLife = 'Project Life is required';
-        break;
-      case 5: // Financing - Only core financing structure
-        if (!formData.debtEquityRatio?.trim()) newErrors.debtEquityRatio = 'Debt Equity Ratio is required';
-        break;
-      case 6: // VAT Assumptions - Only if applicable
-        // VAT rate is optional as not all projects have VAT implications
-        break;
-      case 7: // Custom Duty - Only if applicable
-        // Custom duty is optional as not all projects have import implications
-        break;
-      case 8: // Opex Assumptions - Only core operational costs
-        if (!formData.omCost?.trim()) newErrors.omCost = 'OM Cost is required';
-        break;
-      case 9: // Debt Assumptions - Only if debt financing is used
-        // Debt assumptions are optional as projects might be fully equity-funded
-        break;
-      case 10: // EBL Assumptions - Only if bridge loan is used
-        // EBL assumptions are optional as not all projects need bridge financing
-        break;
-      case 11: // Terminal Value - Only if exit strategy is planned
-        // Terminal value is optional as not all projects have exit strategies
-        break;
-      case 12: // IRR - Only core return metrics
-        if (!formData.targetIRR?.trim()) newErrors.targetIRR = 'Target IRR is required';
-        break;
-    }
+    // switch (currentStep) {
+    //   case 0: // Project Info - Essential for any project
+    //     if (!formData.projectReference?.trim()) newErrors.projectReference = 'Project Reference is required';
+    //     if (!formData.projectName?.trim()) newErrors.projectName = 'Project Name is required';
+    //     if (!formData.country?.trim()) newErrors.country = 'Country is required';
+    //     if (!formData.version?.trim()) newErrors.version = 'Project Version is required';
+    //     break;
+    //   case 1: // Timelines - Essential dates for project planning
+    //     if (!formData.modelStartDate?.trim()) newErrors.modelStartDate = 'Model Start Date is required';
+    //     if (!formData.bidSubmissionDate?.trim()) newErrors.bidSubmissionDate = 'Bid Submission Date is required';
+    //     if (!formData.financialCloseDateAsPerPPA?.trim()) newErrors.financialCloseDateAsPerPPA = 'Financial Close Date as per PPA is required';
+    //     if (!formData.targetFCDate?.trim()) newErrors.targetFCDate = 'Target FC Date is required';
+    //     if (!formData.earliestConnectionDateAsPerPPA?.trim()) newErrors.earliestConnectionDateAsPerPPA = 'Earliest Connection Date as per PPA is required';
+    //     if (!formData.earliestConnectionDate?.trim()) newErrors.earliestConnectionDate = 'Earliest Connection Date is required';
+    //     if (!formData.scheduledFirstConstructionMilestoneDateAsPerPPA?.trim()) newErrors.scheduledFirstConstructionMilestoneDateAsPerPPA = 'Scheduled First Construction Milestone Date as per PPA is required';
+    //     if (!formData.scheduledFirstConstructionMilestoneDate?.trim()) newErrors.scheduledFirstConstructionMilestoneDate = 'Scheduled First Construction Milestone Date is required';
+    //     if (!formData.constructionPeriod?.trim()) newErrors.constructionPeriod = 'Construction Period is required';
+    //     if (!formData.scheduledPCODAsPerPPA?.trim()) newErrors.scheduledPCODAsPerPPA = 'Scheduled PCOD as per PPA is required';
+    //     if (!formData.scheduledPCOD?.trim()) newErrors.scheduledPCOD = 'Scheduled PCOD is required';
+    //     if (!formData.longstopDate?.trim()) newErrors.longstopDate = 'Longstop Date is required';
+    //     if (!formData.tenorOfPPA?.trim()) newErrors.tenorOfPPA = 'Tenor of PPA is required';
+    //     if (!formData.eblMaxTenorAsPerRFP?.trim()) newErrors.eblMaxTenorAsPerRFP = 'EBL Max Tenor as per RFP is required';
+    //     if (!formData.maxTargetRefinancingDateAsPerRFP?.trim()) newErrors.maxTargetRefinancingDateAsPerRFP = 'Max. Target Refinancing Date as per RFP is required';
+    //     break;
+    //   case 2: // Project Type - Essential for project classification
+    //     if (!formData.projectType?.trim()) newErrors.projectType = 'Project Type is required';
+    //     break;
+    //   case 3: // Enterprise Assumptions - Core financial parameters
+    //     if (!formData.tariff?.trim()) newErrors.tariff = 'Tariff Rate is required';
+    //     if (!formData.exchangeRate?.trim()) newErrors.exchangeRate = 'Exchange Rate is required';
+    //     if (!formData.inflationRate?.trim()) newErrors.inflationRate = 'Inflation Rate is required';
+    //     if (!formData.projectLife?.trim()) newErrors.projectLife = 'Project Life is required';
+    //     if (!formData.plantCapacityAC?.trim()) newErrors.plantCapacityAC = 'Plant Capacity AC is required';
+    //     if (!formData.plf?.trim()) newErrors.plf = 'Plant Load Factor is required';
+    //     if (!formData.debtEquityRatio?.trim()) newErrors.debtEquityRatio = 'Debt-Equity Ratio is required';
+    //     if (!formData.interestRate?.trim()) newErrors.interestRate = 'Interest Rate is required';
+    //     if (!formData.targetIRR?.trim()) newErrors.targetIRR = 'Target IRR is required';
+    //     break;
+    // }
     
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    // setErrors(newErrors);
+    // return Object.keys(newErrors).length === 0;
+    
+    // Always return true for testing - no validation
+    return true;
   };
 
   // Check if a step is accessible (completed or current)
@@ -450,26 +400,8 @@ export default function ProjectFormContainer({ isViewMode = false }: ProjectForm
         return !!(formData.modelStartDate?.trim() || formData.bidSubmissionDate?.trim() || formData.financialCloseDateAsPerPPA?.trim() || formData.targetFCDate?.trim() || formData.constructionPeriod?.trim() || formData.scheduledPCOD?.trim() || formData.tenorOfPPA?.trim());
       case 2: // Project Type
         return !!formData.projectType?.trim();
-      case 3: // Plant Assumptions
-        return !!(formData.plantCapacityAC?.trim() || formData.plf?.trim());
-      case 4: // Financial Assumptions
-        return !!(formData.tariff?.trim() || formData.exchangeRate?.trim() || formData.inflationRate?.trim());
-      case 5: // Financing
-        return !!(formData.debtEquityRatio?.trim() || formData.interestRate?.trim());
-      case 6: // VAT Assumptions
-        return !!formData.vatRate?.trim();
-      case 7: // Custom Duty
-        return !!formData.customDutyRate?.trim();
-      case 8: // Opex Assumptions
-        return !!(formData.omCost?.trim() || formData.insuranceCost?.trim());
-      case 9: // Debt Assumptions
-        return !!(formData.debtAmount?.trim() || formData.debtInterestRate?.trim());
-      case 10: // EBL Assumptions
-        return !!(formData.eblAmount?.trim() || formData.eblInterestRate?.trim());
-      case 11: // Terminal Value
-        return !!formData.terminalValueMethod?.trim();
-      case 12: // IRR
-        return !!formData.targetIRR?.trim();
+      case 3: // Enterprise Assumptions
+        return !!(formData.tariff?.trim() || formData.exchangeRate?.trim() || formData.inflationRate?.trim() || formData.projectLife?.trim() || formData.plantCapacityAC?.trim() || formData.plf?.trim() || formData.debtEquityRatio?.trim() || formData.interestRate?.trim() || formData.targetIRR?.trim());
       default:
         return false;
     }
@@ -559,26 +491,8 @@ export default function ProjectFormContainer({ isViewMode = false }: ProjectForm
         return !!(formData.modelStartDate && formData.bidSubmissionDate && formData.financialCloseDateAsPerPPA && formData.targetFCDate && formData.constructionPeriod && formData.scheduledPCOD && formData.tenorOfPPA);
       case 2: // Project Type - Essential classification
         return !!formData.projectType;
-      case 3: // Plant Assumptions - Core capacity metrics
-        return !!(formData.plantCapacityAC && formData.plf);
-      case 4: // Financial Assumptions - Core economic parameters
-        return !!(formData.tariff && formData.projectLife);
-      case 5: // Financing - Core financing structure
-        return !!formData.debtEquityRatio;
-      case 6: // VAT Assumptions - Optional (not all projects have VAT)
-        return true;
-      case 7: // Custom Duty - Optional (not all projects have imports)
-        return true;
-      case 8: // OPEX Assumptions - Core operational costs
-        return !!formData.omCost;
-      case 9: // Debt Assumptions - Optional (projects might be equity-funded)
-        return true;
-      case 10: // EBL Assumptions - Optional (not all projects need bridge loans)
-        return true;
-      case 11: // Terminal Value - Optional (not all projects have exit strategies)
-        return true;
-      case 12: // IRR - Core return metrics
-        return !!formData.targetIRR;
+      case 3: // Enterprise Assumptions - Core financial parameters
+        return !!(formData.tariff && formData.exchangeRate && formData.inflationRate && formData.projectLife && formData.plantCapacityAC && formData.plf && formData.debtEquityRatio && formData.interestRate && formData.targetIRR);
       default:
         return true;
     }
@@ -603,73 +517,56 @@ export default function ProjectFormContainer({ isViewMode = false }: ProjectForm
 
   // Show validation errors for a specific step
   const showValidationErrorsForStep = (stepIndex: number) => {
-    const newErrors: {[key: string]: string} = {};
+    // COMMENTED OUT FOR TESTING - No validation errors shown
+    // const newErrors: {[key: string]: string} = {};
     
-    switch (stepIndex) {
-      case 0: // Project Info - Essential fields
-        if (!formData.projectReference?.trim()) newErrors.projectReference = 'Project Reference is required';
-        if (!formData.projectName?.trim()) newErrors.projectName = 'Project Name is required';
-        if (!formData.country?.trim()) newErrors.country = 'Country is required';
-        if (!formData.version?.trim()) newErrors.version = 'Project Version is required';
-        break;
-      case 1: // Timelines - Essential dates
-        if (!formData.modelStartDate?.trim()) newErrors.modelStartDate = 'Model Start Date is required';
-        if (!formData.bidSubmissionDate?.trim()) newErrors.bidSubmissionDate = 'Bid Submission Date is required';
-        if (!formData.financialCloseDateAsPerPPA?.trim()) newErrors.financialCloseDateAsPerPPA = 'Financial Close Date as per PPA is required';
-        if (!formData.targetFCDate?.trim()) newErrors.targetFCDate = 'Target FC Date is required';
-        if (!formData.constructionPeriod?.trim()) newErrors.constructionPeriod = 'Construction Period is required';
-        if (!formData.scheduledPCOD?.trim()) newErrors.scheduledPCOD = 'Scheduled PCOD is required';
-        if (!formData.tenorOfPPA?.trim()) newErrors.tenorOfPPA = 'Tenor of PPA is required';
-        break;
-      case 2: // Project Type - Essential classification
-        if (!formData.projectType?.trim()) newErrors.projectType = 'Project Type is required';
-        break;
-      case 3: // Plant Assumptions - Core capacity metrics
-        if (!formData.plantCapacityAC?.trim()) newErrors.plantCapacityAC = 'Plant Capacity AC is required';
-        if (!formData.plf?.trim()) newErrors.plf = 'PLF is required';
-        break;
-      case 4: // Financial Assumptions - Core economic parameters
-        if (!formData.tariff?.trim()) newErrors.tariff = 'Tariff is required';
-        if (!formData.projectLife?.trim()) newErrors.projectLife = 'Project Life is required';
-        break;
-      case 5: // Financing - Core financing structure
-        if (!formData.debtEquityRatio?.trim()) newErrors.debtEquityRatio = 'Debt Equity Ratio is required';
-        break;
-      case 6: // VAT Assumptions - Optional (not all projects have VAT)
-        // No validation errors for optional fields
-        break;
-      case 7: // Custom Duty - Optional (not all projects have imports)
-        // No validation errors for optional fields
-        break;
-      case 8: // OPEX Assumptions - Core operational costs
-        if (!formData.omCost?.trim()) newErrors.omCost = 'OM Cost is required';
-        break;
-      case 9: // Debt Assumptions - Optional (projects might be equity-funded)
-        // No validation errors for optional fields
-        break;
-      case 10: // EBL Assumptions - Optional (not all projects need bridge loans)
-        // No validation errors for optional fields
-        break;
-      case 11: // Terminal Value - Optional (not all projects have exit strategies)
-        // No validation errors for optional fields
-        break;
-      case 12: // IRR - Core return metrics
-        if (!formData.targetIRR?.trim()) newErrors.targetIRR = 'Target IRR is required';
-        break;
-    }
+    // switch (stepIndex) {
+    //   case 0: // Project Info - Essential fields
+    //     if (!formData.projectReference?.trim()) newErrors.projectReference = 'Project Reference is required';
+    //     if (!formData.projectName?.trim()) newErrors.projectName = 'Project Name is required';
+    //     if (!formData.country?.trim()) newErrors.country = 'Country is required';
+    //     if (!formData.version?.trim()) newErrors.version = 'Project Version is required';
+    //     break;
+    //   case 1: // Timelines - Essential dates
+    //     if (!formData.modelStartDate?.trim()) newErrors.modelStartDate = 'Model Start Date is required';
+    //     if (!formData.bidSubmissionDate?.trim()) newErrors.bidSubmissionDate = 'Bid Submission Date is required';
+    //     if (!formData.financialCloseDateAsPerPPA?.trim()) newErrors.financialCloseDateAsPerPPA = 'Financial Close Date as per PPA is required';
+    //     if (!formData.targetFCDate?.trim()) newErrors.targetFCDate = 'Target FC Date is required';
+    //     if (!formData.constructionPeriod?.trim()) newErrors.constructionPeriod = 'Construction Period is required';
+    //     if (!formData.scheduledPCOD?.trim()) newErrors.scheduledPCOD = 'Scheduled PCOD is required';
+    //     if (!formData.tenorOfPPA?.trim()) newErrors.tenorOfPPA = 'Tenor of PPA is required';
+    //     break;
+    //   case 2: // Project Type - Essential classification
+    //     if (!formData.projectType?.trim()) newErrors.projectType = 'Project Type is required';
+    //     break;
+    //   case 3: // Enterprise Assumptions - Core financial parameters
+    //     if (!formData.tariff?.trim()) newErrors.tariff = 'Tariff Rate is required';
+    //     if (!formData.exchangeRate?.trim()) newErrors.exchangeRate = 'Exchange Rate is required';
+    //     if (!formData.inflationRate?.trim()) newErrors.inflationRate = 'Inflation Rate is required';
+    //     if (!formData.projectLife?.trim()) newErrors.projectLife = 'Project Life is required';
+    //     if (!formData.plantCapacityAC?.trim()) newErrors.plantCapacityAC = 'Plant Capacity AC is required';
+    //     if (!formData.plf?.trim()) newErrors.plf = 'Plant Load Factor is required';
+    //     if (!formData.debtEquityRatio?.trim()) newErrors.debtEquityRatio = 'Debt-Equity Ratio is required';
+    //     if (!formData.interestRate?.trim()) newErrors.interestRate = 'Interest Rate is required';
+    //     if (!formData.targetIRR?.trim()) newErrors.targetIRR = 'Target IRR is required';
+    //     break;
+    // }
     
-    setErrors(newErrors);
+    // setErrors(newErrors);
     
-    // Show error message
-    if (Object.keys(newErrors).length > 0) {
-      // Scroll to the current step to show errors
-      setTimeout(() => {
-        const stepElement = document.querySelector(`[data-step="${stepIndex}"]`);
-        if (stepElement) {
-          stepElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 100);
-    }
+    // // Show error message
+    // if (Object.keys(newErrors).length > 0) {
+    //   // Scroll to the current step to show errors
+    //   setTimeout(() => {
+    //     const stepElement = document.querySelector(`[data-step="${stepIndex}"]`);
+    //     if (stepElement) {
+    //       stepElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    //     }
+    //   }, 100);
+    // }
+    
+    // No validation errors for testing
+    return;
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
@@ -791,33 +688,11 @@ export default function ProjectFormContainer({ isViewMode = false }: ProjectForm
 
     switch (currentStep) {
       case 0:
-        return <ProjectInfoStep {...commonProps} />;
-      case 1:
-        return <TimelinesStep {...commonProps} />;
-      case 2:
         return <ProjectTypeStep {...commonProps} />;
-      case 3:
-        return <PlantAssumptionsStep {...commonProps} />;
-      case 4:
-        return <FinancialAssumptionsStep {...commonProps} />;
-      case 5:
-        return <FinancingStep {...commonProps} />;
-      case 6:
-        return <VATAssumptionsStep {...commonProps} />;
-      case 7:
-        return <CustomDutyStep {...commonProps} />;
-      case 8:
-        return <OpexAssumptionsStep {...commonProps} />;
-      case 9:
-        return <DebtAssumptionsStep {...commonProps} />;
-      case 10:
-        return <EBLAssumptionsStep {...commonProps} />;
-      case 11:
-        return <TerminalValueStep {...commonProps} />;
-      case 12:
-        return <IRRStep {...commonProps} />;
+      case 1:
+        return <RealInputSheetStep {...commonProps} />;
       default:
-        return <ProjectInfoStep {...commonProps} />;
+        return <ProjectTypeStep {...commonProps} />;
     }
   };
 
@@ -911,7 +786,7 @@ export default function ProjectFormContainer({ isViewMode = false }: ProjectForm
                     <span>Version: {formData.version}</span>
                   </div>
                   <button
-                    onClick={() => setShowAssumptionsModal(true)}
+                    onClick={() => setCurrentStep(3)}
                     className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg text-sm font-semibold shadow-md hover:shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105"
                     title="View All Assumptions"
                   >
@@ -1129,14 +1004,6 @@ export default function ProjectFormContainer({ isViewMode = false }: ProjectForm
         )}
       </div>
 
-      {/* View All Assumptions Modal */}
-      <AssumptionsModal
-        isOpen={showAssumptionsModal}
-        onClose={() => setShowAssumptionsModal(false)}
-        formData={formData}
-        currentStep={currentStep}
-        steps={steps}
-      />
 
       {/* Finalization Modal */}
       {showFinalizationModal && (

@@ -17,9 +17,9 @@ export default function ProjectTypeStep({ formData, errors, handleChange, isView
           <span className="text-xl">🏗️</span>
         </div>
         <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-          Project Type
+          Project Type & Version
         </h2>
-        <p className="text-gray-600 mt-1">Select the type of project you&apos;re creating</p>
+        <p className="text-gray-600 mt-1">Select the type of project and set version information</p>
       </div>
       
       <div className="max-w-md mx-auto">
@@ -52,6 +52,38 @@ export default function ProjectTypeStep({ formData, errors, handleChange, isView
           </div>
           {errors.projectType && (
             <p className="mt-1 text-sm text-red-600">{errors.projectType}</p>
+          )}
+        </div>
+
+        {/* Project Version Field */}
+        <div className="group mt-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 group-hover:text-orange-600 transition-colors">
+            Project Version *
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              name="version"
+              value={formData.version || '1.0.0'}
+              onChange={handleChange}
+              disabled={isViewMode}
+              placeholder="e.g., 1.0.0"
+              className={`w-full px-3 py-2 border-2 rounded-lg focus:ring-2 focus:ring-orange-100 focus:border-orange-500 text-gray-900 transition-all duration-300 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md ${
+                errors.version ? 'border-red-500 focus:ring-red-100 focus:border-red-500' : 'border-gray-200'
+              } ${isViewMode ? 'opacity-60 cursor-not-allowed' : ''}`}
+              required
+            />
+            {errors.version && (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />
+              </div>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-gray-500">
+            Use semantic versioning: MAJOR.MINOR.PATCH (e.g., 1.0.0)
+          </p>
+          {errors.version && (
+            <p className="mt-1 text-sm text-red-600">{errors.version}</p>
           )}
         </div>
       </div>

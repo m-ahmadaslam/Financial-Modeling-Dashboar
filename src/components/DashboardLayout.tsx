@@ -226,6 +226,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       <span className="ml-3">All Projects</span>
                     </Link>
                     <Link
+                      href="/dashboard/timelines"
+                      className="flex items-center px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200"
+                    >
+                      <ChartBarIcon className="w-4 h-4 flex-shrink-0" />
+                      <span className="ml-3">Timelines</span>
+                    </Link>
+                    <Link
                       href="/dashboard/departments"
                       className="flex items-center px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200"
                     >

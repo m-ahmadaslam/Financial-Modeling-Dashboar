@@ -2,6 +2,7 @@
 
 import RouteProtection from "@/components/RouteProtection";
 import DashboardLayout from "@/components/DashboardLayout";
+import FinancialModelTester from "@/components/FinancialModelTester";
 
 export default function Dashboard() {
 
@@ -122,6 +123,11 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Financial Model Tester */}
+        <div className="mt-8">
+          <FinancialModelTester />
         </div>
       </div>
         </DashboardLayout>
